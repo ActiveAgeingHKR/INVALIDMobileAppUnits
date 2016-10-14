@@ -1,185 +1,162 @@
 package com.example.iuliu.aa;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+
 import android.app.ProgressDialog;
 import android.content.Intent;
-import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
+import com.loopj.android.http.AsyncHttpClient;
+import com.loopj.android.http.AsyncHttpResponseHandler;
+import com.loopj.android.http.RequestParams;
 
 public class MainActivity extends AppCompatActivity {
 
-    public static final int CONNECTION_TIMEOUT=10000;
-    public static final int READ_TIMEOUT=15000;
-    private EditText etEmail;
-    private EditText etPassword;
-
+    // Progress Dialog Object
+    ProgressDialog prgDialog;
+    // Error Msg TextView Object
+    TextView errorMsg;
+    // Email Edit View Object
+    EditText emailET;
+    // Passwprd Edit View Object
+    EditText pwdET;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        // Get Reference to variables
-        etEmail = (EditText) findViewById(R.id.email);
-        etPassword = (EditText) findViewById(R.id.password);
-
+        // Find Error Msg Text View control by ID
+        errorMsg = (TextView)findViewById(R.id.login_error);
+        // Find Email Edit View control by ID
+        emailET = (EditText)findViewById(R.id.loginEmail);
+        // Find Password Edit View control by ID
+        pwdET = (EditText)findViewById(R.id.loginPassword);
+        // Instantiate Progress Dialog object
+        prgDialog = new ProgressDialog(this);
+        // Set Progress Dialog Text
+        prgDialog.setMessage("Please wait...");
+        // Set Cancelable as False
+        prgDialog.setCancelable(false);
     }
 
-    // Triggers when LOGIN Button clicked
-    public void checkLogin(View arg0) {
-
-        // Get text from email and passord field
-        final String email = etEmail.getText().toString();
-        final String password = etPassword.getText().toString();
-
-        // Initialize  AsyncLogin() class with email and password
-        new AsyncLogin().execute(email,password);
-
-    }
-
-    private class AsyncLogin extends AsyncTask<String, String, String>
-    {
-        ProgressDialog pdLoading = new ProgressDialog(MainActivity.this);
-        HttpURLConnection conn;
-        URL url = null;
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-
-            //this method will be running on UI thread
-            pdLoading.setMessage("\tLoading...");
-            pdLoading.setCancelable(false);
-            pdLoading.show();
-
+    /**
+     * Method gets triggered when Login button is clicked
+     *
+     * @param view
+     */
+    public void loginUser(View view){
+        // Get Email Edit View Value
+        String email = emailET.getText().toString();
+        // Get Password Edit View Value
+        String password = pwdET.getText().toString();
+        // Instantiate Http Request Param Object
+        RequestParams params = new RequestParams();
+        // When Email Edit View and Password Edit View have values other than Null
+        if(Utility.isNotNull(email) && Utility.isNotNull(password)){
+            // When Email entered is Valid
+            if(Utility.validate(email)){
+                // Put Http parameter username with value of Email Edit View control
+                params.put("username", email);
+                // Put Http parameter password with value of Password Edit Value control
+                params.put("password", password);
+                // Invoke RESTful Web Service with Http parameters
+                invokeWS(params);
+            }
+            // When Email is invalid
+            else{
+                Toast.makeText(getApplicationContext(), "Please enter valid email", Toast.LENGTH_LONG).show();
+            }
         }
-        @Override
-        protected String doInBackground(String... params) {
-            try {
+        // When any of the Edit View control left blank
+        else{
+            Toast.makeText(getApplicationContext(), "Please fill the form, don't leave any field blank", Toast.LENGTH_LONG).show();
+        }
 
-                // Enter URL address where your php file resides
-                url = new URL("http://caretaking.kodstack.com/account/api_login");
+    }
 
-
-            } catch (MalformedURLException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-                return "exception";
-            }
-            try {
-                // Setup HttpURLConnection class to send and receive data from php and mysql
-                conn = (HttpURLConnection)url.openConnection();
-                conn.setReadTimeout(READ_TIMEOUT);
-                conn.setConnectTimeout(CONNECTION_TIMEOUT);
-                conn.setRequestMethod("POST");
-
-                // setDoInput and setDoOutput method depict handling of both send and receive
-                conn.setDoInput(true);
-                conn.setDoOutput(true);
-
-                // Append parameters to URL
-                Uri.Builder builder = new Uri.Builder()
-                        .appendQueryParameter("username", params[0])
-                        .appendQueryParameter("password", params[1]);
-                String query = builder.build().getEncodedQuery();
-
-                // Open connection for sending data
-                OutputStream os = conn.getOutputStream();
-                BufferedWriter writer = new BufferedWriter(
-                        new OutputStreamWriter(os, "UTF-8"));
-                writer.write(query);
-                writer.flush();
-                writer.close();
-                os.close();
-                conn.connect();
-
-            } catch (IOException e1) {
-                // TODO Auto-generated catch block
-                e1.printStackTrace();
-                return "exception";
-            }
-
-            try {
-
-                int response_code = conn.getResponseCode();
-
-                // Check if successful connection made
-                if (response_code == HttpURLConnection.HTTP_OK) {
-
-                    // Read data sent from server
-                    InputStream input = conn.getInputStream();
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(input));
-                    StringBuilder result = new StringBuilder();
-                    String line;
-
-                    while ((line = reader.readLine()) != null) {
-                        result.append(line);
-                      //  result.append("true");
-
+    /**
+     * Method that performs RESTful webservice invocations
+     *
+     * @param params
+     */
+    public void invokeWS(RequestParams params){
+        // Show Progress Dialog
+        prgDialog.show();
+        // Make RESTful webservice call using AsyncHttpClient object
+        AsyncHttpClient client = new AsyncHttpClient();
+        client.get("http://192.168.1.100:8000/serverRest/login/dologin",params ,new AsyncHttpResponseHandler() {
+            // When the response returned by REST has Http response code '200'
+            @Override
+            public void onSuccess(String response) {
+                // Hide Progress Dialog
+                prgDialog.hide();
+                try {
+                    // JSON Object
+                    JSONObject obj = new JSONObject(response);
+                    // When the JSON response has status boolean value assigned with true
+                    if(obj.getBoolean("status")){
+                        Toast.makeText(getApplicationContext(), "You are successfully logged in!", Toast.LENGTH_LONG).show();
+                        // Navigate to Home screen
+                        navigatetoHomeActivity();
                     }
-
-                    // Pass data to onPostExecute method
-                    return(result.toString());
-
-                }else{
-
-                   return("unsuccessful");
+                    // Else display error message
+                    else{
+                        errorMsg.setText(obj.getString("error_msg"));
+                        Toast.makeText(getApplicationContext(), obj.getString("error_msg"), Toast.LENGTH_LONG).show();
+                    }
+                } catch (JSONException e) {
+                    // TODO Auto-generated catch block
+                    Toast.makeText(getApplicationContext(), "Error Occured [Server's JSON response might be invalid]!", Toast.LENGTH_LONG).show();
+                    e.printStackTrace();
 
                 }
-
-            } catch (IOException e) {
-                e.printStackTrace();
-
-                return "exception";
-            } finally {
-                conn.disconnect();
             }
-
-
-        }
-
-        @Override
-        protected void onPostExecute(String result) {
-
-            //this method will be running on UI thread
-
-            pdLoading.dismiss();
-
-            if(result.equalsIgnoreCase("true"))
-            {
-                /* Here launching another activity when login successful. If you persist login state
-                use sharedPreferences of Android. and logout button to clear sharedPreferences.
-                 */
-
-                Intent intent = new Intent(MainActivity.this,DisplayScheduleActivity.class);
-                startActivity(intent);
-                MainActivity.this.finish();
-
-            }else if (result.equalsIgnoreCase("false")){
-
-                // If username and password does not match display a error message
-                Toast.makeText(MainActivity.this, "Invalid email or password", Toast.LENGTH_LONG).show();
-
-            } else if (result.equalsIgnoreCase("exception") || result.equalsIgnoreCase("unsuccessful")) {
-
-                Toast.makeText(MainActivity.this, "OOPs! Something went wrong. Connection Problem.", Toast.LENGTH_LONG).show();
-
+            // When the response returned by REST has Http response code other than '200'
+            @Override
+            public void onFailure(int statusCode, Throwable error,
+                                  String content) {
+                // Hide Progress Dialog
+                prgDialog.hide();
+                // When Http response code is '404'
+                if(statusCode == 404){
+                    Toast.makeText(getApplicationContext(), "Requested resource not found", Toast.LENGTH_LONG).show();
+                }
+                // When Http response code is '500'
+                else if(statusCode == 500){
+                    Toast.makeText(getApplicationContext(), "Something went wrong at server end", Toast.LENGTH_LONG).show();
+                }
+                // When Http response code other than 404, 500
+                else{
+                    Toast.makeText(getApplicationContext(), "Unexpected Error occcured! [Most common Error: Device might not be connected to Internet or remote server is not up and running]", Toast.LENGTH_LONG).show();
+                }
             }
-        }
-
+        });
     }
+
+    /**
+     * Method which navigates from Login Activity to Home Activity
+     */
+    public void navigatetoHomeActivity(){
+        Intent homeIntent = new Intent(getApplicationContext(),DisplayScheduleActivity.class);
+        homeIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(homeIntent);
+    }
+
+    /**
+     * Method gets triggered when Register button is clicked
+     *
+     * @param view
+     */
+    public void navigatetoRegisterActivity(View view){
+        Intent loginIntent = new Intent(getApplicationContext(),RegisterActivity.class);
+        loginIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(loginIntent);
+    }
+
 }
