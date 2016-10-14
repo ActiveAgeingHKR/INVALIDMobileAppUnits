@@ -31,9 +31,9 @@ public class DisplayScheduleActivity extends Activity {
 
     public void createData() {
         for (int j = 0; j < 7; j++) {
-            Schedule group = new Schedule("Test new " + j);
-            for (int i = 0; i < 3; i++) {
-                group.children.add("Sub Item" + i);
+            Schedule group = new Schedule("Time slot:" + j);
+            for (int i = 0; i < 1; i++) {
+                group.children.add("Customer:" + i);
             }
             groups.append(j, group);
         }

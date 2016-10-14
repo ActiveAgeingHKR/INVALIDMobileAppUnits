@@ -129,6 +129,7 @@ public class MainActivity extends AppCompatActivity {
                     while ((line = reader.readLine()) != null) {
                         result.append(line);
                       //  result.append("true");
+
                     }
 
                     // Pass data to onPostExecute method
