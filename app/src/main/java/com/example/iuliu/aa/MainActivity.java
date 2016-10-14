@@ -100,16 +100,20 @@ public class MainActivity extends AppCompatActivity {
                     // JSON Object
                     JSONObject obj = new JSONObject(response);
                     // When the JSON response has status boolean value assigned with true
-                    if(obj.getBoolean("status")){
+                    navigatetoDisplayScheduleActivity();
+                    //*
+                    //*
+                /*    if(obj.getBoolean("status")){
                         Toast.makeText(getApplicationContext(), "You are successfully logged in!", Toast.LENGTH_LONG).show();
                         // Navigate to Home screen
-                        navigatetoHomeActivity();
+                        navigatetoDisplayScheduleActivity();
                     }
                     // Else display error message
                     else{
                         errorMsg.setText(obj.getString("error_msg"));
                         Toast.makeText(getApplicationContext(), obj.getString("error_msg"), Toast.LENGTH_LONG).show();
-                    }
+                    }*/
+                    //** shorcut LOGIN
                 } catch (JSONException e) {
                     // TODO Auto-generated catch block
                     Toast.makeText(getApplicationContext(), "Error Occured [Server's JSON response might be invalid]!", Toast.LENGTH_LONG).show();
@@ -142,7 +146,7 @@ public class MainActivity extends AppCompatActivity {
     /**
      * Method which navigates from Login Activity to Home Activity
      */
-    public void navigatetoHomeActivity(){
+    public void navigatetoDisplayScheduleActivity(){
         Intent homeIntent = new Intent(getApplicationContext(),DisplayScheduleActivity.class);
         homeIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(homeIntent);

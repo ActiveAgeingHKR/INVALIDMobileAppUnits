@@ -2,13 +2,14 @@ package com.example.iuliu.aa;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.SparseArray;
 import android.widget.ExpandableListView;
 
 /**
  * Created by Iuliu on 2016-09-23.
  */
-public class DisplayScheduleActivity extends Activity {
+public class DisplayScheduleActivity extends AppCompatActivity {
 
     SparseArray<Schedule> groups = new SparseArray<Schedule>();
     ExpandableListView listView;
@@ -16,7 +17,7 @@ public class DisplayScheduleActivity extends Activity {
 
     @Override
 
-//tttttt
+
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_success);
