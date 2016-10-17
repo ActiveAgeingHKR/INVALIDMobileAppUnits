@@ -8,14 +8,15 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.loopj.android.http.AsyncHttpClient;
-import com.loopj.android.http.AsyncHttpResponseHandler;
-import com.loopj.android.http.RequestParams;
+import com.loopj.android.http.*;
+
+import cz.msebera.android.httpclient.Header;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -90,7 +91,61 @@ public class MainActivity extends AppCompatActivity {
         prgDialog.show();
         // Make RESTful webservice call using AsyncHttpClient object
         AsyncHttpClient client = new AsyncHttpClient();
-        client.get("http://192.168.1.100:8000/serverRest/login/dologin",params ,new AsyncHttpResponseHandler() {
+        client.get("http://194.47.44.125:8000/serverRest/login/dologin", params, new TextHttpResponseHandler() {
+
+                    public void onSuccess(int statusCode, Header[] headers, String res) {
+
+
+                        // called when response HTTP status is "200 OK"
+                        // Hide Progress Dialog
+                        prgDialog.hide();
+                        try {
+                            // JSON Object
+                            JSONObject obj = new JSONObject(res);
+                            // When the JSON response has status boolean value assigned with true
+                            //  navigatetoDisplayScheduleActivity();
+                            //*
+                            //*
+                            if(obj.getBoolean("status")){
+                                Toast.makeText(getApplicationContext(), "You are successfully logged in!", Toast.LENGTH_LONG).show();
+                                // Navigate to Home screen
+                                navigatetoDisplayScheduleActivity();
+                            }
+                            // Else display error message
+                            else{
+                                errorMsg.setText(obj.getString("error_msg"));
+                                Toast.makeText(getApplicationContext(), obj.getString("error_msg"), Toast.LENGTH_LONG).show();
+                            }
+                            //** shorcut LOGIN
+                        } catch (JSONException e) {
+                            // TODO Auto-generated catch block
+                            Toast.makeText(getApplicationContext(), "Error Occured [Server's JSON response might be invalid]!", Toast.LENGTH_LONG).show();
+                            e.printStackTrace();
+
+                        }
+
+                    }
+
+
+                    public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
+                        // Hide Progress Dialog
+                        prgDialog.hide();
+                        // When Http response code is '404'
+                        if(statusCode == 404){
+                            Toast.makeText(getApplicationContext(), "Requested resource not found", Toast.LENGTH_LONG).show();
+                        }
+                        // When Http response code is '500'
+                        else if(statusCode == 500){
+                            Toast.makeText(getApplicationContext(), "Something went wrong at server end", Toast.LENGTH_LONG).show();
+                        }
+                        // When Http response code other than 404, 500
+                        else{
+                            Toast.makeText(getApplicationContext(), "Unexpected Error occcured! [Most common Error: Device might not be connected to Internet or remote server is not up and running]", Toast.LENGTH_LONG).show();
+                        }
+                    }
+                }
+        );
+        /*client.get("http://194.47.44.125:8000/serverRest/login/dologin",params ,new AsyncHttpResponseHandler() {
             // When the response returned by REST has Http response code '200'
             @Override
             public void onSuccess(String response) {
@@ -100,10 +155,10 @@ public class MainActivity extends AppCompatActivity {
                     // JSON Object
                     JSONObject obj = new JSONObject(response);
                     // When the JSON response has status boolean value assigned with true
-                    navigatetoDisplayScheduleActivity();
+                  //  navigatetoDisplayScheduleActivity();
                     //*
                     //*
-                /*    if(obj.getBoolean("status")){
+                   if(obj.getBoolean("status")){
                         Toast.makeText(getApplicationContext(), "You are successfully logged in!", Toast.LENGTH_LONG).show();
                         // Navigate to Home screen
                         navigatetoDisplayScheduleActivity();
@@ -112,7 +167,7 @@ public class MainActivity extends AppCompatActivity {
                     else{
                         errorMsg.setText(obj.getString("error_msg"));
                         Toast.makeText(getApplicationContext(), obj.getString("error_msg"), Toast.LENGTH_LONG).show();
-                    }*/
+                    }
                     //** shorcut LOGIN
                 } catch (JSONException e) {
                     // TODO Auto-generated catch block
@@ -140,7 +195,7 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(), "Unexpected Error occcured! [Most common Error: Device might not be connected to Internet or remote server is not up and running]", Toast.LENGTH_LONG).show();
                 }
             }
-        });
+        });*/
     }
 
     /**
