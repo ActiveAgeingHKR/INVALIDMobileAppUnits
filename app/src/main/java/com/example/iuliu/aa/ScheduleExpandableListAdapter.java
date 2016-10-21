@@ -4,6 +4,8 @@ package com.example.iuliu.aa;
  * Created by Iuliu on 2016-09-24.
  */
 import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,6 +13,7 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.CheckedTextView;
+import android.widget.ExpandableListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -48,14 +51,19 @@ public class ScheduleExpandableListAdapter extends BaseExpandableListAdapter {
         convertView.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
+                Context context=v.getContext();
                 Toast.makeText(activity, children,
                         Toast.LENGTH_SHORT).show();
+                Intent intent= new Intent(context, ItemDetails.class);
+                context.startActivity(intent);
+
             }
         });
         return convertView;
     }
 
-    @Override
+//jjjjjjj
+        @Override
     public int getChildrenCount(int groupPosition) {
         return groups.get(groupPosition).children.size();
     }
@@ -102,6 +110,6 @@ public class ScheduleExpandableListAdapter extends BaseExpandableListAdapter {
 
     @Override
     public boolean isChildSelectable(int groupPosition, int childPosition) {
-        return false;
+        return true;
     }
 }
