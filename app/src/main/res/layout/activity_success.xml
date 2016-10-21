@@ -4,13 +4,20 @@
     android:layout_height="match_parent"
     android:layout_alignParentTop="true"
     tools:context=".DisplayScheduleActivity" >
-
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar_actionbar"
+        android:background="@null"
+        android:layout_width="match_parent"
+        android:layout_height="?actionBarSize"
+        android:fitsSystemWindows="true" />
     <ExpandableListView
         android:id="@+id/listView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
 
-        >
+        android:layout_alignParentEnd="true">
     </ExpandableListView>
+
+
 
 </RelativeLayout>
