@@ -1,7 +1,7 @@
 package com.example.iuliu.aa;
 
-import android.app.Activity;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
@@ -10,8 +10,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.ExpandableListView;
-
-import static com.example.iuliu.aa.R.menu.menu_succes;
 
 /**
  * Created by Iuliu on 2016-09-23.
@@ -57,11 +55,19 @@ public class DisplayScheduleActivity extends AppCompatActivity {
             Intent intent = new Intent(DisplayScheduleActivity.this, CalendarActivity.class);
             startActivity(intent);
             return true;
-        }
+        } else if (id == R.id.mybutton_phone) {
+            this.call();
 
+        }
         return super.onOptionsItemSelected(item);
     }
+    public void call() {
+        String url=url = "tel: " + "1234";
+        Intent callIntent = new Intent(Intent.ACTION_DIAL);
+        callIntent.setData(Uri.parse(url));
 
+        startActivity(callIntent);
+    }
     public void createData() {
         for (int j = 0; j < 7; j++) {
             Schedule group = new Schedule("Time slot:" + j);

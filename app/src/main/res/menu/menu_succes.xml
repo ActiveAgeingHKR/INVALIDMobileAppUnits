@@ -20,4 +20,10 @@
         app:showAsAction="always"
         android:icon="@mipmap/ic_messages"
         />
+    <item
+        android:id="@+id/mybutton_phone"
+        android:title=""
+        app:showAsAction="always"
+        android:icon="@mipmap/ic_phone"
+        />
 </menu>
