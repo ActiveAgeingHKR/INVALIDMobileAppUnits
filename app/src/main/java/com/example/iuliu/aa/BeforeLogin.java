@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Display;
 import android.view.Window;
@@ -15,7 +16,7 @@ import android.widget.ImageView;
 /**
  * Created by Iuliu on 2016-09-23.
  */
-public class BeforeLogin extends AppCompatActivity {
+public class BeforeLogin extends FragmentActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,7 +33,7 @@ public class BeforeLogin extends AppCompatActivity {
         Point size = new Point();
         display.getSize(size);
         Bitmap bmp = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(
-                getResources(), R.drawable.active_ageing_image),size.x,size.y,true);
+                getResources(), R.drawable.active_ageing_image1),size.x,size.y,true);
 
     /* fill the background ImageView with the resized image */
         ImageView iv_background = (ImageView) findViewById(R.id.imageView);

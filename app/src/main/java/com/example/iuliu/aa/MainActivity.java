@@ -6,7 +6,9 @@ import org.json.JSONObject;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -18,7 +20,7 @@ import com.loopj.android.http.*;
 
 import cz.msebera.android.httpclient.Header;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends FragmentActivity {
 
     // Progress Dialog Object
     ProgressDialog prgDialog;
@@ -40,10 +42,20 @@ public class MainActivity extends AppCompatActivity {
         pwdET = (EditText)findViewById(R.id.loginPassword);
         // Instantiate Progress Dialog object
         prgDialog = new ProgressDialog(this);
+        SharedPreferences prefs = getPreferences(MODE_PRIVATE);
+        String restoredEmail = prefs.getString("email", null);
+        //mSaved.setText(restoredText, TextView.BufferType.EDITABLE);
+        int restoredPassword = prefs.getInt("password", -1);
+        emailET.setText(restoredEmail);
+        pwdET.setText(Integer.toString(restoredPassword));
+
+
+
         // Set Progress Dialog Text
         prgDialog.setMessage("Please wait...");
         // Set Cancelable as False
         prgDialog.setCancelable(false);
+
     }
 
     /**
@@ -62,6 +74,12 @@ public class MainActivity extends AppCompatActivity {
         if(Utility.isNotNull(email) && Utility.isNotNull(password)){
             // When Email entered is Valid
             if(Utility.validate(email)){
+
+                SharedPreferences.Editor editor = getPreferences(MODE_PRIVATE).edit();
+                editor.putString("email", emailET.getText().toString());
+                editor.putInt("password", Integer.parseInt(pwdET.getText().toString()));
+
+                editor.apply();
                 // Put Http parameter username with value of Email Edit View control
                 params.put("username", email);
                 // Put Http parameter password with value of Password Edit Value control
@@ -91,7 +109,7 @@ public class MainActivity extends AppCompatActivity {
         prgDialog.show();
         // Make RESTful webservice call using AsyncHttpClient object
         AsyncHttpClient client = new AsyncHttpClient();
-        client.get("http://194.47.44.125:8000/serverRest/login/dologin", params, new TextHttpResponseHandler() {
+        client.get("http://192.168.1.100:8000/serverRest/login/dologin", params, new TextHttpResponseHandler() {
 
                     public void onSuccess(int statusCode, Header[] headers, String res) {
 
